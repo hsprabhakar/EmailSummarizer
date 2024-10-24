@@ -1,0 +1,13 @@
+# Ignore credentials and token files
+credentials.json
+token.json
+
+# Ignore virtual environment folder
+myenv/
+
+# (Optional) Ignore Python cache and bytecode
+__pycache__/
+*.py[cod]
+
+# (Optional) Ignore VS Code settings (if you are using Visual Studio Code)
+.vscode/
