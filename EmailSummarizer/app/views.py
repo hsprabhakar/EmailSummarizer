@@ -29,11 +29,9 @@ def oauth2_login(request):
     return HttpResponseRedirect(authorization_url)
 
 def oauth2_callback(request):
-    #state = request.session.get('state')  # Use .def oauth2_callback(request):
     state = request.GET.get('state')
-    if state != request.session.get('state'):
+    if not state:
         return HttpResponse("Error: state parameter mismatch.", status=400)
-    # Rest of your code here...() to avoid KeyError
 
     if not state:
         # Handle the case where state is not found
