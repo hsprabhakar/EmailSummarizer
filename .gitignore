@@ -12,4 +12,4 @@ __pycache__/
 # (Optional) Ignore VS Code settings (if you are using Visual Studio Code)
 .vscode/
 
-EmailSummarizer\db.sqlite3
+EmailSummarizer/db.sqlite3
