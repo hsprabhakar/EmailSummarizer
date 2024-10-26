@@ -33,10 +33,6 @@ def oauth2_callback(request):
     if not state:
         return HttpResponse("Error: state parameter mismatch.", status=400)
 
-    if not state:
-        # Handle the case where state is not found
-        return HttpResponse("Error: state parameter is missing from session.", status=400)
-    
     flow = Flow.from_client_secrets_file(
         CLIENT_SECRETS_FILE,
         scopes=SCOPES,
