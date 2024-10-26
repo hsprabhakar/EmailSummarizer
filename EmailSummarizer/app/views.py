@@ -29,7 +29,7 @@ def oauth2_login(request):
     return HttpResponseRedirect(authorization_url)
 
 def oauth2_callback(request):
-    state = request.session.get('state')  # Use .get() to avoid KeyError
+    # state = request.session.get('state')  # Use .get() to avoid KeyError
 
     if not state:
         # Handle the case where state is not found
