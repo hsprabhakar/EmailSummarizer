@@ -28,7 +28,7 @@ def main():
     service = build('gmail', 'v1', credentials=creds)
 
     # Get the user's inbox messages
-    results = service.users().messages().list(userId='me', labelIds=['INBOX'], maxResults=10).execute()
+    results = service.users().messages().list(userId='me', labelIds=['INBOX'], maxResults=1).execute()
     messages = results.get('messages', [])
 
     if not messages:
@@ -37,7 +37,16 @@ def main():
         print('Messages:')
         for message in messages:
             msg = service.users().messages().get(userId='me', id=message['id']).execute()
-            print(f"Snippet: {msg['snippet']}")
+            headers = msg.get('payload', {}).get('headers', [])
+            print(headers)
+            # cleanMsg = convertToJson(msg)
+            # print(cleanMsg)
+
+# def convertToJson(msg):
+#     headers = msg.get('payload', {}).get('headers', [])
+#     if headers['name'] == 'From':
+#         return headers['value']
+
 
 if __name__ == '__main__':
     main()
