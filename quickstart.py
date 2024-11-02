@@ -32,7 +32,7 @@ def main():
     service = build('gmail', 'v1', credentials=creds)
 
     # Get the user's inbox messages
-    results = service.users().messages().list(userId='me', labelIds=['INBOX'], maxResults=2).execute()
+    results = service.users().messages().list(userId='me', labelIds=['INBOX'], maxResults=5).execute()
     messages = results.get('messages', [])
 
     if not messages:
@@ -142,8 +142,8 @@ def cleanHTML(html_content):
     soup = BeautifulSoup(html_content, 'html.parser')
     for content in soup(['style', 'script']):
         content.decompose()
-    return soup.get_text(separator='\n', strip=True)
-
+    # return soup.get_text(separator='\n', strip=True)
+    return ' '.join(soup.stripped_strings)
 
 
 if __name__ == '__main__':
