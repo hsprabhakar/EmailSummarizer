@@ -28,25 +28,46 @@ def main():
     service = build('gmail', 'v1', credentials=creds)
 
     # Get the user's inbox messages
-    results = service.users().messages().list(userId='me', labelIds=['INBOX'], maxResults=1).execute()
+    results = service.users().messages().list(userId='me', labelIds=['INBOX'], format='full', maxResults=1).execute()
     messages = results.get('messages', [])
 
     if not messages:
         print('No messages found.')
     else:
         print('Messages:')
+        # Loop through the messages and print their details
         for message in messages:
             msg = service.users().messages().get(userId='me', id=message['id']).execute()
-            headers = msg.get('payload', {}).get('headers', [])
-            print(headers)
-            # cleanMsg = convertToJson(msg)
-            # print(cleanMsg)
+            headers = msg['payload']['headers']
+            fHeaders = filterHeaders(headers)
+            print(fHeaders)
 
-# def convertToJson(msg):
-#     headers = msg.get('payload', {}).get('headers', [])
-#     if headers['name'] == 'From':
-#         return headers['value']
+def filterHeaders(headers):
+    """
+    Extracts and returns specific email headers: 'From', 'Subject', and 'Date'.
 
+    Args:
+        headers (list of dict): A list of dictionaries representing email headers, 
+                                where each dictionary contains 'name' and 'value' keys.
+
+    Returns:
+        list: A list containing the 'From', 'Subject', and 'Date' values, respectively,
+              extracted from the headers. If any of these headers are not present, 
+              their corresponding value in the returned list will be None.
+    """
+    filteredHeaders = []
+    sender = subject = date = None
+    for header in headers:
+        if header['name'] == 'From':
+            sender = header['value']   
+        if header['name'] == 'Subject':
+            subject = header['value']
+        if header['name'] == 'Date':
+            date = header['value']
+    filteredHeaders.append(sender)
+    filteredHeaders.append(subject)
+    filteredHeaders.append(date)
+    return filteredHeaders
 
 if __name__ == '__main__':
     main()
