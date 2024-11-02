@@ -28,7 +28,7 @@ def main():
     service = build('gmail', 'v1', credentials=creds)
 
     # Get the user's inbox messages
-    results = service.users().messages().list(userId='me', labelIds=['INBOX'], format='full', maxResults=1).execute()
+    results = service.users().messages().list(userId='me', labelIds=['INBOX'], maxResults=1).execute()
     messages = results.get('messages', [])
 
     if not messages:
