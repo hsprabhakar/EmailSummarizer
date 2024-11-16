@@ -1,13 +1,17 @@
 #from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from google.auth.transport import requests
+from google.oauth2 import id_token
 from google_auth_oauthlib.flow import Flow
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 from django.conf import settings
 import os
 # Create your views here.
 # Set your SCOPES and redirect URI
-SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
+SCOPES = ["openid", 'https://www.googleapis.com/auth/gmail.readonly']
 REDIRECT_URI = f'{settings.LOCALHOST_URL}/oauth2callback/'
 
 CLIENT_SECRETS_FILE = os.path.join(settings.BASE_DIR, 'credentials.json')
@@ -26,7 +30,7 @@ def oauth2_login(request):
         include_granted_scopes='true'
     )
     request.session['state'] = state  # Store the state in the session
-    return HttpResponseRedirect(authorization_url)
+    return JsonResponse({"redirect_url": authorization_url})
 
 def oauth2_callback(request):
     state = request.GET.get('state')
@@ -52,8 +56,10 @@ def oauth2_callback(request):
         'client_secret': credentials.client_secret,
         'scopes': credentials.scopes
     }
+    request_adapter = requests.Request()
+    user_info = id_token.verify_oauth2_token(credentials.id_token, request_adapter)
 
-    return HttpResponse("Authentication successful! You can now close this tab.")
+    return JsonResponse({"message": "Successfully authenticated", "user_info": user_info})
 
 def fetch_gmail_messages(request):
     if 'credentials' not in request.session:
@@ -73,3 +79,7 @@ def fetch_gmail_messages(request):
             msg = service.users().messages().get(userId='me', id=message['id']).execute()
             output += f"Snippet: {msg['snippet']}<br>"
         return HttpResponse(output)
+
+@api_view(['GET'])
+def google_sign_in(request):
+    return Response({"message": "Hello from Django!"})

@@ -23,3 +23,23 @@ then create your OAuth2 credentials
 * Download the credentials file (a credentials.json) and keep it in your root directory of this project
 
 Run using ```python .\quickstart.py```
+
+
+
+## How to run the main app
+
+Ensure you have your credentials setup on google cloud.
+Make sure your credentials have the following scopes:
+* openid
+* gmail.readonly
+
+These scopes are defined as well inside views.py. These are essential to allow the app to read Gmail and read details using the openid api. 
+
+
+### Run Backend:
+Navigate into EmailSummarizer folder and run ```python manage.py runserver```
+
+### Run Frontend:
+In a second terminal, navigate into frontend folder and run ```npm run dev```
+
+Head to http://localhost:8000/login
