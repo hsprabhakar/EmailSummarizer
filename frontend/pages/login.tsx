@@ -2,6 +2,13 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
+import {DetailsAccordion} from "@/components/DetailsAccordion"
+import {
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
+} from "@/components/ui/accordion"
 import { GoogleLoginButton } from "@/components/EmailButton"
 import "../app/globals.css"
 export default function Login() {
@@ -12,6 +19,9 @@ export default function Login() {
             <div className="text-center">
                 <h1 className="text-4xl font-bold mb-4">Simplify your inbox</h1>
                 <p className="text-lg text-gray-600">Summarize your emails into one readable email, everyday</p>
+                <div className="mt-10">
+                    <DetailsAccordion />
+                </div>
             </div>
             </div>
     
