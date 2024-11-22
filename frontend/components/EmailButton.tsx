@@ -1,3 +1,5 @@
+"use client";
+
 import { ButtonWithIcon } from "@/components/ButtonWithIcon";
 
 
