@@ -1,9 +1,11 @@
 "use client";
 
 import { ButtonWithIcon } from "@/components/ButtonWithIcon";
+import { useRouter } from "next/navigation";
 
 
 export function GoogleLoginButton() {
+    const router = useRouter(); // Initialize the router
 
     const handleGoogleLogin = async () => {
         try {
@@ -14,7 +16,7 @@ export function GoogleLoginButton() {
 
             if (response.ok) {
                 const {redirect_url} = await response.json();
-                window.location.href = redirect_url;
+                window.location.href = "/home";
             } else {
                 throw new Error("Failed to login with Google");
             }
