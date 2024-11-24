@@ -79,6 +79,9 @@ def fetch_gmail_messages(request):
             msg = service.users().messages().get(userId='me', id=message['id']).execute()
             output += f"Snippet: {msg['snippet']}<br>"
         return HttpResponse(output)
+    
+def topTenNow(request):
+    return JsonResponse({"message": "Work in progress"})
 
 @api_view(['GET'])
 def google_sign_in(request):
