@@ -1,8 +1,9 @@
-import { ButtonWithIcon } from "@/components/ButtonWithIcon";
+"use client";
 
+import { ButtonWithIcon } from "@/components/ButtonWithIcon";
+import Image from "next/image";
 
 export function GoogleLoginButton() {
-
     const handleGoogleLogin = async () => {
         try {
             const response = await fetch("http://localhost:8000/api/auth/google", {
@@ -12,7 +13,8 @@ export function GoogleLoginButton() {
 
             if (response.ok) {
                 const {redirect_url} = await response.json();
-                window.location.href = redirect_url;
+                // window.location.href = redirect_url;
+                window.location.href = "/home";
             } else {
                 throw new Error("Failed to login with Google");
             }
@@ -25,7 +27,7 @@ export function GoogleLoginButton() {
 
     return (
         <ButtonWithIcon
-        icon={<img src="google-icon.svg" alt="Google Icon" className="w-5 h-5" />}
+        icon={<Image width={20} height={20} src="google-icon.svg" alt="Google Icon" className="w-5 h-5" />}
         label="Google"
         onClick={handleGoogleLogin}
         />

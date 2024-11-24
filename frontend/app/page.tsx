@@ -1,3 +1,5 @@
+// `app/page.tsx` is the UI for the `/` URL
+import Link from 'next/link'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
@@ -11,7 +13,7 @@ import {
 } from "@/components/ui/accordion"
 import { GoogleLoginButton } from "@/components/EmailButton"
 import "../app/globals.css"
-export default function Login() {
+export default function Page() {
     return (
         <div className="flex h-screen">
             {/* Left side - Content */}
@@ -41,5 +43,6 @@ export default function Login() {
             </div>
         </div>
         );
-    }
-    
+  }
+
+  
