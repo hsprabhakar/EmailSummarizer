@@ -34,6 +34,8 @@ Run using ```python .\quickstart.py```
 Ensure you have your credentials setup on google cloud.
 Make sure your credentials have the following scopes:
 * openid
+* userinfo.email
+* userinfo.profile
 * gmail.readonly
 
 These scopes are defined as well inside views.py. These are essential to allow the app to read Gmail and read details using the openid api. 
