@@ -7,8 +7,8 @@ export default function SummarizeButton() {
             });
 
             if (response.ok) {
-                const {message} = await response.json();
-                alert("JSON response: " + message);
+                const {name} = await response.json();
+                alert("JSON response: " + name);
             } else {
                 throw new Error("Failed to get response from backend");
             }
