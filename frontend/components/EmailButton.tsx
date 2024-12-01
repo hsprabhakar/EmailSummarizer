@@ -1,7 +1,9 @@
 "use client";
 
 import { ButtonWithIcon } from "@/components/ButtonWithIcon";
+import { useEffect } from "react";
 import Image from "next/image";
+import { verify } from "crypto";
 
 export function GoogleLoginButton() {
     const handleGoogleLogin = async () => {
@@ -13,8 +15,8 @@ export function GoogleLoginButton() {
 
             if (response.ok) {
                 const {redirect_url} = await response.json();
-                // window.location.href = redirect_url;
-                window.location.href = "/home";
+                window.location.href = redirect_url;
+                // window.location.href = "/home";
             } else {
                 throw new Error("Failed to login with Google");
             }
