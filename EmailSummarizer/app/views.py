@@ -11,7 +11,7 @@ from django.conf import settings
 import os
 # Create your views here.
 # Set your SCOPES and redirect URI
-SCOPES = ["openid", 'https://www.googleapis.com/auth/gmail.readonly']
+SCOPES = ['openid', 'https://www.googleapis.com/auth/gmail.readonly', 'https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/userinfo.profile']
 REDIRECT_URI = f'{settings.LOCALHOST_URL}/oauth2callback/'
 
 CLIENT_SECRETS_FILE = os.path.join(settings.BASE_DIR, 'credentials.json')
@@ -49,6 +49,7 @@ def oauth2_callback(request):
     flow.fetch_token(authorization_response=request.build_absolute_uri())
 
     #save the credentials
+    # TODO: save credentials in database
     credentials = flow.credentials
     request.session['credentials'] = {
         'token': credentials.token,
@@ -59,6 +60,12 @@ def oauth2_callback(request):
         'scopes': credentials.scopes
     }
     request_adapter = requests.Request()
+    user_info = id_token.verify_oauth2_token(credentials.id_token, request_adapter)
+    
+    #TODO : save email and name in database
+    request.session['email'] = user_info.get('email')
+    request.session['name'] = user_info.get('name')
+
     try:
         user_info = id_token.verify_oauth2_token(credentials.id_token, request_adapter)
         print({"message": f"Successfully Authenticated with user info: {user_info}"})
@@ -66,7 +73,6 @@ def oauth2_callback(request):
         return JsonResponse({"error": "Invalid token"}, status=400)
     print({"message": f"Successfully Authenticated with user info: {user_info}"})
     return HttpResponseRedirect("http://localhost:3000/home")
-
 
 def fetch_gmail_messages(request):
     if 'credentials' not in request.session:
@@ -86,6 +92,9 @@ def fetch_gmail_messages(request):
             msg = service.users().messages().get(userId='me', id=message['id']).execute()
             output += f"Snippet: {msg['snippet']}<br>"
         return HttpResponse(output)
+    
+def topTenNow(request):
+    return JsonResponse({"name": request.session.get('name')})
 
 @api_view(['GET'])
 def google_sign_in(request):
