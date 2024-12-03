@@ -12,9 +12,8 @@ export function GoogleLoginButton() {
             });
 
             if (response.ok) {
-                const {user_info} = await response.json();
-                // window.location.href = user_info;
-                window.location.href = "/home";
+                const {redirect_url} = await response.json();
+                window.location.href = redirect_url;
             } else {
                 throw new Error("Failed to login with Google");
             }

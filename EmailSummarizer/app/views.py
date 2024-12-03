@@ -64,7 +64,13 @@ def oauth2_callback(request):
     request.session['email'] = user_info.get('email')
     request.session['name'] = user_info.get('name')
 
-    return JsonResponse({"message": "Successfully authenticated", "user_info": user_info})
+    try:
+        user_info = id_token.verify_oauth2_token(credentials.id_token, request_adapter)
+        print({"message": f"Successfully Authenticated with user info: {user_info}"})
+    except ValueError as e:
+        return JsonResponse({"error": "Invalid token"}, status=400)
+    print({"message": f"Successfully Authenticated with user info: {user_info}"})
+    return HttpResponseRedirect("http://localhost:3000/home")
 
 def fetch_gmail_messages(request):
     if 'credentials' not in request.session:
