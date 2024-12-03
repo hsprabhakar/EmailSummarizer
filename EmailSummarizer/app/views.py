@@ -29,6 +29,8 @@ def oauth2_login(request):
         access_type='offline',
         include_granted_scopes='true'
     )
+    print(authorization_url)
+    print(state)
     request.session['state'] = state  # Store the state in the session
     return JsonResponse({"redirect_url": authorization_url})
 
