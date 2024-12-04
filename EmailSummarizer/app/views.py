@@ -11,6 +11,7 @@ from django.conf import settings
 from .models import UserProfile
 from django.contrib.auth.models import User
 import os
+import base64
 # Create your views here.
 # Set your SCOPES and redirect URI
 SCOPES = ['openid', 'https://www.googleapis.com/auth/gmail.readonly', 'https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/userinfo.profile']
@@ -119,24 +120,47 @@ def fetch_gmail_messages(request):
             output += f"Snippet: {msg['snippet']}<br>"
         return HttpResponse(output)
     
-def topTenNow(request):
+def top_emails(request):
     if 'credentials' not in request.session:
         return JsonResponse({"messages": "User not authenticated."})
     
+    try:
+        number = int(request.GET.get('number', 10))
+    except ValueError:
+        return JsonResponse({"error": "Invalid number parameter."}, status=400)
+    
     creds = Credentials(**request.session['credentials'])
     service = build('gmail', 'v1', credentials=creds)
+    try:
+        results = service.users().messages().list(userId='me', labelIds=['INBOX'], maxResults=number).execute()
+        messages = results.get('messages', [])
 
-    results = service.users().messages().list(userId='me', labelIds=['INBOX'], maxResults=10).execute()
-    messages = results.get('messages', [])
+        if not messages:
+            return JsonResponse({"messages": 'No messages found.'})
 
-    if not messages:
-        return JsonResponse({"messages": 'No messages found.'})
-    else:
-        output = 'Messages:<br>'
+        email_data = []
+
         for message in messages:
             msg = service.users().messages().get(userId='me', id=message['id']).execute()
-            output += f"Snippet: {msg['snippet']}<br>"
-        return JsonResponse({"messages": output})
+            headers = {header['name']: header['value'] for header in msg['payload']['headers']}
+            subject = headers.get('Subject', 'No Subject')
+            sender = headers.get('From', 'Unknown Sender')
+            body = ''
+            if 'parts' in msg['payload']:
+                for part in msg['payload']['parts']:
+                    if part['mimeType'] == 'text/plain' and 'data' in part['body']:
+                        body += base64.urlsafe_b64decode(part['body']['data']).decode('utf-8')
+            email_data.append({
+                    "id": message['id'],
+                    "sender": sender,
+                    "subject": subject,
+                    "snippet": msg.get('snippet', 'No Snippet'),
+                    "body": body.strip() if body else 'No Body Content'
+            })
+        return JsonResponse({"messages": email_data}, status=200)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
 
 @api_view(['GET'])
 def google_sign_in(request):
