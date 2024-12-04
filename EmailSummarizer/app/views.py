@@ -62,18 +62,34 @@ def oauth2_callback(request):
     }
     request_adapter = requests.Request()
     user_info = id_token.verify_oauth2_token(credentials.id_token, request_adapter)
-    
+    # Extract email and name
+    email = user_info.get('email')
+    name = user_info.get('name')
+    request.session['email'] = email
+    request.session['name'] = name
     
     request.session['email'] = user_info.get('email')
     request.session['name'] = user_info.get('name')
 
-    # Save email and name in database
-    user=User(username = user_info.get('name'), email = user_info.get('email'))
-    user.save()
-    user_profile = UserProfile(user=user,
-                                access_token=credentials.token, 
-                                refresh_token=credentials.refresh_token)
-    user_profile.save()
+    try:
+        user = User.objects.get(email=email);
+        print(f"User {user.username} exists, skipping creation.")
+    except User.DoesNotExist:
+
+        user=User(username = user_info.get('name'), email = user_info.get('email'))
+        user.save()
+
+    user_profile, created = UserProfile.objects.get_or_create(
+        user=user,
+        defaults={
+            'access_token': credentials.token,
+            'refresh_token': credentials.refresh_token,
+        }
+    )
+    if not created:
+        user_profile.access_token = credentials.token
+        user_profile.refresh_token = credentials.refresh_token
+        user_profile.save()
 
     try:
         user_info = id_token.verify_oauth2_token(credentials.id_token, request_adapter)
