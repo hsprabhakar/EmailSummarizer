@@ -104,7 +104,23 @@ def fetch_gmail_messages(request):
         return HttpResponse(output)
     
 def topTenNow(request):
-    return JsonResponse({"name": request.session.get('name')})
+    if 'credentials' not in request.session:
+        return JsonResponse({"messages": "User not authenticated."})
+    
+    creds = Credentials(**request.session['credentials'])
+    service = build('gmail', 'v1', credentials=creds)
+
+    results = service.users().messages().list(userId='me', labelIds=['INBOX'], maxResults=10).execute()
+    messages = results.get('messages', [])
+
+    if not messages:
+        return JsonResponse({"messages": 'No messages found.'})
+    else:
+        output = 'Messages:<br>'
+        for message in messages:
+            msg = service.users().messages().get(userId='me', id=message['id']).execute()
+            output += f"Snippet: {msg['snippet']}<br>"
+        return JsonResponse({"messages": output})
 
 @api_view(['GET'])
 def google_sign_in(request):
