@@ -8,6 +8,8 @@ from googleapiclient.discovery import build
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.conf import settings
+from .models import UserProfile
+from django.contrib.auth.models import User
 import os
 # Create your views here.
 # Set your SCOPES and redirect URI
@@ -48,8 +50,7 @@ def oauth2_callback(request):
 
     flow.fetch_token(authorization_response=request.build_absolute_uri())
 
-    #save the credentials
-    # TODO: save credentials in database
+    # Save the credentials
     credentials = flow.credentials
     request.session['credentials'] = {
         'token': credentials.token,
@@ -62,9 +63,17 @@ def oauth2_callback(request):
     request_adapter = requests.Request()
     user_info = id_token.verify_oauth2_token(credentials.id_token, request_adapter)
     
-    #TODO : save email and name in database
+    
     request.session['email'] = user_info.get('email')
     request.session['name'] = user_info.get('name')
+
+    # Save email and name in database
+    user=User(username = user_info.get('name'), email = user_info.get('email'))
+    user.save()
+    user_profile = UserProfile(user=user,
+                                access_token=credentials.token, 
+                                refresh_token=credentials.refresh_token)
+    user_profile.save()
 
     try:
         user_info = id_token.verify_oauth2_token(credentials.id_token, request_adapter)
@@ -72,6 +81,7 @@ def oauth2_callback(request):
     except ValueError as e:
         return JsonResponse({"error": "Invalid token"}, status=400)
     print({"message": f"Successfully Authenticated with user info: {user_info}"})
+    #TODO : change when deployed
     return HttpResponseRedirect("http://localhost:3000/home")
 
 def fetch_gmail_messages(request):
