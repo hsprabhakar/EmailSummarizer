@@ -40,6 +40,10 @@ Make sure your credentials have the following scopes:
 
 These scopes are defined as well inside views.py. These are essential to allow the app to read Gmail and read details using the openid api. 
 
+Need to add OpenAI API Key to OS environment variables.
+
+Windows: ```setx OPENAI_API_KEY "your_api_key_here"```
+Mac OS: ```export OPENAI_API_KEY="your_api_key_here"```
 
 ### Run Backend:
 Navigate into EmailSummarizer folder and run ```python manage.py runserver```
