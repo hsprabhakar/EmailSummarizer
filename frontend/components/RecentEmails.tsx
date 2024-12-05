@@ -1,4 +1,9 @@
+import React, { useState } from "react";
+import EmailTable from "./EmailTable";
+
 export default function SummarizeButton() {
+    const [emails, setEmails] = useState([]);
+
     const handleSummarizeEmails = async () => {
         const numberOfEmails = 10;
         try {
@@ -9,16 +14,7 @@ export default function SummarizeButton() {
 
             if (response.ok) {
                 const { messages } = await response.json();
-
-                // Format the messages into a readable string
-                const formattedMessages = messages
-                    .map(
-                        (message) =>
-                            `Subject: ${message.subject}\nSender: ${message.sender}\nSnippet: ${message.snippet}\n`
-                    )
-                    .join("\n--------------------\n");
-
-                alert(formattedMessages);
+                setEmails(messages);
             } else {
                 throw new Error("Failed to get response from backend");
             }
@@ -29,11 +25,18 @@ export default function SummarizeButton() {
     };
 
     return (
-        <button
-            onClick={handleSummarizeEmails}
-            className="bg-neutral-800 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded"
-        >
-            Summarize my emails
-        </button>
+        <div>
+            <div className="flex justify-center my-4">
+                <button
+                    onClick={handleSummarizeEmails}
+                    className="bg-neutral-800 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded"
+                >
+                    Summarize my emails
+                </button>
+            </div>
+            <div className="my-8">
+                {emails.length > 0 && <EmailTable emails={emails} />}
+            </div>
+        </div>
     );
 }
