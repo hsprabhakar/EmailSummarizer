@@ -1,6 +1,6 @@
 import "../app/globals.css"
-import Table from "@/components/ui/table"
-import SummarizeButton from "@/components/SummarizeButton"
+import EmailTable from "@/components/EmailTable"
+import SummarizeButton from "@/components/RecentEmails"
 export default function Home() {
   return (
     <>
@@ -10,9 +10,6 @@ export default function Home() {
         </div>
         <div className="flex my-8 justify-center">
           <SummarizeButton /> {/*Button to summarize 10 latest emails*/}
-        </div>
-        <div>
-            <Table />
         </div>
       </div>
     </>
