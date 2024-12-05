@@ -1,4 +1,5 @@
 #from django.shortcuts import render
+import json
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from google.auth.transport import requests
 from google.oauth2 import id_token
@@ -10,6 +11,7 @@ from rest_framework.response import Response
 from django.conf import settings
 from .models import UserProfile
 from django.contrib.auth.models import User
+from .LLM import llm_summarize_JSON, llm_test
 import os
 import base64
 # Create your views here.
@@ -94,7 +96,6 @@ def oauth2_callback(request):
 
     try:
         user_info = id_token.verify_oauth2_token(credentials.id_token, request_adapter)
-        print({"message": f"Successfully Authenticated with user info: {user_info}"})
     except ValueError as e:
         return JsonResponse({"error": "Invalid token"}, status=400)
     print({"message": f"Successfully Authenticated with user info: {user_info}"})
@@ -157,6 +158,9 @@ def top_emails(request):
                     "snippet": msg.get('snippet', 'No Snippet'),
                     "body": body.strip() if body else 'No Body Content'
             })
+        #TODO : ensure format of email_data is correct for LLM
+        llm_response = llm_summarize_JSON(json.dumps(email_data))
+        print(llm_response)
         return JsonResponse({"messages": email_data}, status=200)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
