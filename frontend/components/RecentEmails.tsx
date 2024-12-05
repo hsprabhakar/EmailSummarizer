@@ -35,7 +35,7 @@ export default function SummarizeButton() {
                 </button>
             </div>
             <div className="my-8">
-                {emails.length > 0 && <EmailTable emails={emails} />}
+                {<EmailTable emails={emails} />}
             </div>
         </div>
     );
