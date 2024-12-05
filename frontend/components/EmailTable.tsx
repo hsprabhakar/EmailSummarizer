@@ -22,7 +22,7 @@ interface EmailTableProps {
 export default function EmailTable({ emails }: EmailTableProps) {
     return (
         <Table>
-            <TableCaption>A list of your recent emails.</TableCaption>
+            <TableCaption>{emails.length > 0 ? "A list of your recent emails." : "No emails to display."}</TableCaption>
             <TableHeader>
                 <TableRow>
                     <TableHead className="w-[100px]">Sender</TableHead>
@@ -31,13 +31,21 @@ export default function EmailTable({ emails }: EmailTableProps) {
                 </TableRow>
             </TableHeader>
             <TableBody>
-                {emails.map((email, index) => (
-                    <TableRow key={index}>
-                        <TableCell>{email.sender}</TableCell>
-                        <TableCell>{email.subject}</TableCell>
-                        <TableCell>{email.snippet}</TableCell>
+                {emails.length > 0 ? (
+                    emails.map((email, index) => (
+                        <TableRow key={index}>
+                            <TableCell>{email.sender}</TableCell>
+                            <TableCell>{email.subject}</TableCell>
+                            <TableCell>{email.snippet}</TableCell>
+                        </TableRow>
+                    ))
+                ) : (
+                    <TableRow>
+                        <TableCell colSpan={3} className="text-center">
+                            No emails available.
+                        </TableCell>
                     </TableRow>
-                ))}
+                )}
             </TableBody>
         </Table>
     )
