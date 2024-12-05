@@ -96,7 +96,6 @@ def oauth2_callback(request):
 
     try:
         user_info = id_token.verify_oauth2_token(credentials.id_token, request_adapter)
-        print({"message": f"Successfully Authenticated with user info: {user_info}"})
     except ValueError as e:
         return JsonResponse({"error": "Invalid token"}, status=400)
     print({"message": f"Successfully Authenticated with user info: {user_info}"})
