@@ -11,9 +11,11 @@ from rest_framework.response import Response
 from django.conf import settings
 from .models import UserProfile
 from django.contrib.auth.models import User
-from .LLM import llm_summarize_JSON, llm_test
+from .LLM import llm_summarize_JSON
+from .utils.helpers import clean_llm_response
 import os
 import base64
+
 # Create your views here.
 # Set your SCOPES and redirect URI
 SCOPES = ['openid', 'https://www.googleapis.com/auth/gmail.readonly', 'https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/userinfo.profile']
@@ -146,6 +148,7 @@ def top_emails(request):
             headers = {header['name']: header['value'] for header in msg['payload']['headers']}
             subject = headers.get('Subject', 'No Subject')
             sender = headers.get('From', 'Unknown Sender')
+            date = headers.get('Date', 'Unknown Date')
             body = ''
             if 'parts' in msg['payload']:
                 for part in msg['payload']['parts']:
@@ -155,13 +158,18 @@ def top_emails(request):
                     "id": message['id'],
                     "sender": sender,
                     "subject": subject,
-                    "snippet": msg.get('snippet', 'No Snippet'),
+                    "date": date,
+                    # "snippet": msg.get('snippet', 'No Snippet'),
                     "body": body.strip() if body else 'No Body Content'
             })
         #TODO : ensure format of email_data is correct for LLM
-        llm_response = llm_summarize_JSON(json.dumps(email_data))
-        print(llm_response)
-        return JsonResponse({"messages": email_data}, status=200)
+        raw_response = llm_summarize_JSON(json.dumps(email_data))
+        llm_response = clean_llm_response(raw_response)
+        print(json.dumps(email_data))
+        return JsonResponse({
+            "messages": email_data,
+            "llm_response": llm_response
+            }, status=200)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
 

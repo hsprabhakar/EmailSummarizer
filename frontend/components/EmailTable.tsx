@@ -27,7 +27,7 @@ export default function EmailTable({ emails }: EmailTableProps) {
                 <TableRow>
                     <TableHead className="w-[100px]">Sender</TableHead>
                     <TableHead>Subject</TableHead>
-                    <TableHead>Snippet</TableHead>
+                    {/* <TableHead>Snippet</TableHead> */}
                 </TableRow>
             </TableHeader>
             <TableBody>
@@ -36,7 +36,7 @@ export default function EmailTable({ emails }: EmailTableProps) {
                         <TableRow key={index}>
                             <TableCell>{email.sender}</TableCell>
                             <TableCell>{email.subject}</TableCell>
-                            <TableCell>{email.snippet}</TableCell>
+                            {/* <TableCell>{email.snippet}</TableCell> */}
                         </TableRow>
                     ))
                 ) : (
