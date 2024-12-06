@@ -1,76 +1,58 @@
 import textwrap
 from openai import OpenAI
 
-def llm_test(email_data):
-    client = OpenAI()
-
-    completion = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[
-            {"role": "system", "content": "Summarize the following emails."},
-            {
-                "role": "user",
-                "content": email_data
-            }
-        ]
-    )
-
-    return completion.choices[0].message.content
-
-
 def llm_summarize_JSON(email_data):
     client = OpenAI()
 
+    # System message explicitly describing the expected behavior and output
     system_message = textwrap.dedent("""\
-            You are an expert email summarizer that is capable of reading, understanding, and summarizing email data in JSON format. You will be receiving multiple email message to digest, all in the JSON format shown below.
+        You are an expert email summarizer that provides structured JSON output. 
+        Given a list of emails in JSON format, summarize each email and return an array of objects, where each object has:
+        - "date": The date of the email (as provided in the input).
+        - "description": A concise, accurate, and helpful summary of the email content.
 
-            An example JSON body you will see is shown below:
-            x = {
-            "From": headers[0],
-            "Subject": headers[1],
-            "Date": headers[2],
-            "Body": body
+        The input JSON will have the following structure:
+        [
+            {"id": "someid", "sender": "somesender", "subject": "somesubject", "date": "somedate", "body": "somebody"}
+        ]
+
+        Example input for one email:
+        [
+            {
+                "id": "19399c3eaf00f29a",
+                "sender": "Marcus Ingram <marcus-noreply@mail.com>",
+                "subject": "Meeting Reminder for proposal;",
+                "date": "Fri, 6 Dec 2024 02:19:33 +0000 (UTC)",
+                "body": "Just a reminder about our meeting tomorrow at 10 AM. Bring a notepad, pencils etc. I think I should be able to make it on time but Ill let you know otherwise."
             }
+        ]
 
-            Please consider the 4 fields in the example body above: From, Subject, Date, and Body. Here is a definition of each field:
-            "From": contains information about who this email is from
-            "Subject": the subject of the email message
-            "Date": a timestamp of when the message was sent
-            "Body": the email message body, which includes the actual contents of the email message
+        Example output for one email:
+        [
+            {
+                "id": 19399c3eaf00f29a",
+                "date": "2024, 6 December",
+                "description": "Marcus reminding you about a proposal meeting and to bring pencils tomorrow at 10 AM."
+            }
+        ]
 
-            You will be tasked to read and summarize various email messages in the format shown above. Do not make up any information that is not explicitly stated in a previous message.
-            """)
-    
+        Constraints:
+        - Only include the "id", "date", and "description" fields in the output.
+        - Do not fabricate information; summarize only the given data.
+        - Ensure the output is a valid JSON array.
+    """)
+
+    # OpenAI completion request
     response = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[
-            {
-                "role": "system", 
-                "content": system_message
-            },
-            {
-                "role": "user", 
-                "content": email_data
-            }
-        ],
-        #TODO: improve the response format
-        response_format={
-            "type": "json_schema",
-            "json_schema": {
-                "name": "email_schema",
-                "schema": {
-                    "type": "object",
-                    "properties": {
-                        "email": {
-                            "title": "email",
-                            "description": "summary of the email",
-                            "type": "string"
-                        },
-                        "additionalProperties": False
-                    }
-                }
-            }
-        }
+            {"role": "system", "content": system_message},
+            {"role": "user", "content": email_data}
+        ]
     )
-    
-    return response.choices[0].message.content
+
+    # Extract the content
+    content = response.choices[0].message.content
+
+    # Return the content directly as JSON (it should be JSON as per instructions)
+    return content
